@@ -34,19 +34,21 @@ public class QuizData {
     public QuizData( Context context ) {
         this.quizDbHelper = QuizDBHelper.getInstance( context );
         this.myContext = context;
+        populate();
     }
 
     // Open the database
     public void open() {
         db = quizDbHelper.getWritableDatabase();
         Log.d( DEBUG_TAG, "JobLeadsData: db open" );
-        populate();
+        //populate();
     }
 
     // Close the database
     public void close() {
         if( quizDbHelper != null ) {
             quizDbHelper.close();
+            QuizDBHelper.methodDrop(db);
             Log.d(DEBUG_TAG, "JobLeadsData: db closed");
         }
     }
@@ -60,7 +62,7 @@ public class QuizData {
             CSVReader reader = new CSVReader( new InputStreamReader( in_s ) );
             String [] nextLine;
             while( ( nextLine = reader.readNext() ) != null ) {
-                for( int i = 0; i < nextLine.length; i++ ) {
+                //for( int i = 0; i < nextLine.length; i++ ) {
                     ContentValues values = new ContentValues();
                     values.put( QuizDBHelper.CAPITALS_COLUMN_STATE, nextLine[0]);
                     values.put( QuizDBHelper.CAPITALS_COLUMN_CAPITAL, nextLine[1] );
@@ -70,7 +72,7 @@ public class QuizData {
                     long id = db.insert(QuizDBHelper.TABLE_CAPITALS, null, values );
 
                     Log.d( DEBUG_TAG, "Line: " + nextLine );
-                }
+                //}
 
             }
         } catch (Exception e) {
@@ -91,7 +93,7 @@ public class QuizData {
                     null, null, null, null, null );
 
             // collect all job leads into a List
-            if( cursor.getCount() > 0 ) {
+            if( cursor.getCount() > 1 ) {
                 while( cursor.moveToNext() ) {
                     // get all attribute values of this job lead
                     long id = cursor.getLong( cursor.getColumnIndex( QuizDBHelper.CAPITALS_COLUMN_ID ) );

@@ -66,8 +66,17 @@ public class QuizDBHelper extends SQLiteOpenHelper {
     // it does not exist yet.
     @Override
     public void onCreate( SQLiteDatabase db ) {
+        db.execSQL( "DROP TABLE IF EXISTS " + TABLE_CAPITALS);
         db.execSQL( CREATE_CAPITALS );
         Log.d( DEBUG_TAG, "Table " + TABLE_CAPITALS + " created" );
+
+    }
+
+    public static void methodDrop(SQLiteDatabase db) {
+        if(db != null) {
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_CAPITALS);
+            Log.d(DEBUG_TAG, "Table " + TABLE_CAPITALS + " dropped");
+        }
 
     }
 
@@ -76,7 +85,7 @@ public class QuizDBHelper extends SQLiteOpenHelper {
     // if the version will be bumped up, as we modify the database schema.
     @Override
     public void onUpgrade( SQLiteDatabase db, int oldVersion, int newVersion ) {
-        db.execSQL( "drop table if exists " + TABLE_CAPITALS );
+        db.execSQL( "DROP TABLE IF EXISTS " + TABLE_CAPITALS);
         onCreate( db );
         Log.d( DEBUG_TAG, "Table " + TABLE_CAPITALS + " upgraded" );
     }
