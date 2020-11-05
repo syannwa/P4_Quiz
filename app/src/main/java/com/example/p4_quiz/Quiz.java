@@ -1,18 +1,12 @@
 package com.example.p4_quiz;
 
-import android.content.res.Resources;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.RadioButton;
-import android.widget.TableLayout;
-import android.widget.TableRow;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,11 +15,8 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
-import com.opencsv.CSVReader;
-
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -39,7 +30,6 @@ public class Quiz extends AppCompatActivity {
 
     public QuizObject currentQuiz = new QuizObject();
     public static final String DEBUG_TAG = "DEBUG_QuizQuestions";
-    public static ArrayList<Integer> randomOrder = new ArrayList<Integer>(3);;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,16 +51,10 @@ public class Quiz extends AppCompatActivity {
             List<QuizQuestion> fullQuestionsList = quizQuestionsData.retrieveAllQuizQuestions();
             Log.d(DEBUG_TAG, "JobLeadDBReaderTask: Job leads retrieved: " + fullQuestionsList.size());
 
-            quizList = new ArrayList<QuizQuestion>();
-//            Random rand = new Random();
-//            for (int i = 0; i < 6; i++) {
-//                int pos = rand.nextInt((51 - 1) + 1) + 1;
-//                quizList.add(fullQuestionsList.get(pos));
-//            }
+            quizList = new ArrayList<>();
 
             int size = 50;
-
-            ArrayList<Integer> list = new ArrayList<Integer>(size);
+            ArrayList<Integer> list = new ArrayList<>(size);
             for(int i = 0; i <= size; i++) {
                 list.add(i);
             }
@@ -85,8 +69,8 @@ public class Quiz extends AppCompatActivity {
                     i--;
                 Log.d( DEBUG_TAG, "Random number selected: " + list.get(index) );
                 list.remove(index);
-
             }
+            createQuiz(quizList);
 
         }
 
@@ -99,7 +83,6 @@ public class Quiz extends AppCompatActivity {
                 if (position == 6 && positionOffset == 0 && !lastPage) {
                     if (counterPageScroll != 0) {
                         lastPage = true;
-                        //submit?
                     }
                     counterPageScroll++;
                 } else {
@@ -116,6 +99,17 @@ public class Quiz extends AppCompatActivity {
             public void onPageScrollStateChanged(int state) {
             }
         });
+    }
+
+    private QuizObject createQuiz(ArrayList<QuizQuestion> quizList) {
+        currentQuiz.setQ1(quizList.get(0));
+        currentQuiz.setQ2(quizList.get(0));
+        currentQuiz.setQ3(quizList.get(0));
+        currentQuiz.setQ4(quizList.get(0));
+        currentQuiz.setQ5(quizList.get(0));
+        currentQuiz.setQ6(quizList.get(0));
+
+        return currentQuiz;
     }
 
     public void loadView(TextView question, String quest, RadioButton option1, String opt1, RadioButton option2,
@@ -146,7 +140,9 @@ public class Quiz extends AppCompatActivity {
 
         @Override
         public CharSequence getPageTitle(int position) {
-            int imageNum = position + 1;
+            int imageNum = position + 1;            //grade the question
+            currentQuiz.setNumberAnswered(position);
+            Log.d(DEBUG_TAG, "Number Answered: " + currentQuiz.getNumberAnswered());
             return String.valueOf("Question " + imageNum);
         }
     }
@@ -199,33 +195,29 @@ public class Quiz extends AppCompatActivity {
         @Override
         public void onActivityCreated(Bundle savedInstanceState) {
             super.onActivityCreated(savedInstanceState);
-//                if (Quiz.class.isInstance(getActivity())) {
-//                    QuizData quizQuestionsData = new QuizData(getActivity());
-//                    quizQuestionsData.open();
-//                    List<QuizQuestion> fullQuestionsList = quizQuestionsData.retrieveAllQuizQuestions();
-//                    Log.d( DEBUG_TAG, "JobLeadDBReaderTask: Job leads retrieved: " + fullQuestionsList.size() );
-//
-//                    ArrayList<QuizQuestion> quizList = new ArrayList<QuizQuestion>();
-//                    Random rand = new Random();
-//                    for(int i=0; i<6; i++) {
-//                        int pos = rand.nextInt( 50 );
-//                        quizList.add( fullQuestionsList.get(pos));
-//                    }
 
-                Log.d( DEBUG_TAG, "onBindViewHolder: " + quizList );
+            Log.d( DEBUG_TAG, "onBindViewHolder: " + quizList );
 
-                ArrayList<Integer> intList = new ArrayList<Integer>(3);
-                for(int i = 0; i <= 2; i++) {
-                  intList.add(i);
-                }
-
-                quest = "What is the capital of " + quizList.get(questionNum - 1).getState().toString();
-                opt1 = quizList.get(questionNum - 1).getCapital().toString();
-                opt2 = quizList.get(questionNum - 1).getCity1().toString();
-                opt3 = quizList.get(questionNum - 1).getCity2().toString();
-
-                ((Quiz) getActivity()).loadView(question, quest, option1, opt1, option2, opt2, option3, opt3);
+            ArrayList<Integer> intList = new ArrayList<>(3);
+            for(int i = 0; i <= 2; i++) {
+              intList.add(i);
             }
+
+            ArrayList<String> options = new ArrayList<String>();
+            options.add(quizList.get(questionNum - 1).getCapital());
+            options.add(quizList.get(questionNum - 1).getCity1());
+            options.add(quizList.get(questionNum - 1).getCity2());
+
+            Collections.shuffle(options);
+
+            quest = "What is the capital of " + quizList.get(questionNum - 1).getState();
+
+            opt1 = options.get(0);
+            opt2 = options.get(1);
+            opt3 = options.get(2);
+
+            ((Quiz) getActivity()).loadView(question, quest, option1, opt1, option2, opt2, option3, opt3);
+        }
 
 
             @Override
