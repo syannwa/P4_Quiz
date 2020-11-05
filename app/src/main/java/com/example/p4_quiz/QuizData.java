@@ -34,14 +34,12 @@ public class QuizData {
     public QuizData( Context context ) {
         this.quizDbHelper = QuizDBHelper.getInstance( context );
         this.myContext = context;
-        populate();
     }
 
     // Open the database
     public void open() {
         db = quizDbHelper.getWritableDatabase();
         Log.d( DEBUG_TAG, "JobLeadsData: db open" );
-        //populate();
     }
 
     // Close the database
@@ -53,61 +51,30 @@ public class QuizData {
         }
     }
 
-    public void populate() {
-        try {
-            Resources res = myContext.getResources();
-            InputStream in_s = res.openRawResource( R.raw.states );
-
-            // read the CSV data
-            CSVReader reader = new CSVReader( new InputStreamReader( in_s ) );
-            String [] nextLine;
-            while( ( nextLine = reader.readNext() ) != null ) {
-                //for( int i = 0; i < nextLine.length; i++ ) {
-                    ContentValues values = new ContentValues();
-                    values.put( QuizDBHelper.CAPITALS_COLUMN_STATE, nextLine[0]);
-                    values.put( QuizDBHelper.CAPITALS_COLUMN_CAPITAL, nextLine[1] );
-                    values.put( QuizDBHelper.CAPITALS_COLUMN_CITY1, nextLine[2] );
-                    values.put( QuizDBHelper.CAPITALS_COLUMN_CITY2, nextLine[3] );
-
-                    long id = db.insert(QuizDBHelper.TABLE_CAPITALS, null, values );
-
-                    Log.d( DEBUG_TAG, "Line: " + nextLine );
-                //}
-
-            }
-        } catch (Exception e) {
-            Log.e( DEBUG_TAG, e.toString() );
-        }
-    }
-
     // Retrieve all job leads and return them as a List.
     // This is how we restore persistent objects stored as rows in the job leads table in the database.
     // For each retrieved row, we create a new JobLead (Java POJO object) instance and add it to the list.
     public List<QuizQuestion> retrieveAllQuizQuestions() {
         ArrayList<QuizQuestion> questions = new ArrayList<>();
         Cursor cursor = null;
+        QuizQuestion question;
 
         try {
-            // Execute the select query and get the Cursor to iterate over the retrieved rows
             cursor = db.query( QuizDBHelper.TABLE_CAPITALS, allColumns,
                     null, null, null, null, null );
 
-            // collect all job leads into a List
             if( cursor.getCount() > 1 ) {
                 while( cursor.moveToNext() ) {
-                    // get all attribute values of this job lead
                     long id = cursor.getLong( cursor.getColumnIndex( QuizDBHelper.CAPITALS_COLUMN_ID ) );
                     String state = cursor.getString( cursor.getColumnIndex( QuizDBHelper.CAPITALS_COLUMN_STATE ) );
                     String capital = cursor.getString( cursor.getColumnIndex( QuizDBHelper.CAPITALS_COLUMN_CAPITAL ) );
                     String city1 = cursor.getString( cursor.getColumnIndex( QuizDBHelper.CAPITALS_COLUMN_CITY1 ) );
                     String city2 = cursor.getString( cursor.getColumnIndex( QuizDBHelper.CAPITALS_COLUMN_CITY2 ) );
 
-                    // create a new JobLead object and set its state to the retrieved values
-                    QuizQuestion question = new QuizQuestion( state, capital, city1, city2 );
-                    question.setId( id ); // set the id (the primary key) of this object
-                    // add it to the list
+                    question = new QuizQuestion(state, capital, city1, city2);
+                    question.setId( id );
                     questions.add( question );
-                    Log.d( DEBUG_TAG, "Retrieved JobLead: " + question );
+                    Log.d( DEBUG_TAG, "Retrieved Question: " + question );
                 }
             }
             Log.d( DEBUG_TAG, "Number of records from DB: " + cursor.getCount() );
@@ -150,4 +117,6 @@ public class QuizData {
 
         return question;
     }
+
+
 }

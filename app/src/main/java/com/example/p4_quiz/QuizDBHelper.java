@@ -35,6 +35,7 @@ public class QuizDBHelper extends SQLiteOpenHelper {
     public static final String QUIZZES_COLUMN_DATE = "date";
 
     private static QuizDBHelper helperInstance;
+    private static Context myContext;
 
     private static final String CREATE_CAPITALS =
             "create table " + TABLE_CAPITALS + " ("
@@ -54,6 +55,7 @@ public class QuizDBHelper extends SQLiteOpenHelper {
 
     private QuizDBHelper(Context context) {
         super( context, DB_NAME, null, DB_VERSION );
+        this.myContext = context;
     }
 
     public static synchronized QuizDBHelper getInstance( Context context ) {
@@ -72,7 +74,31 @@ public class QuizDBHelper extends SQLiteOpenHelper {
         db.execSQL( CREATE_CAPITALS );
         db.execSQL( CREATE_QUIIZZES );
         Log.d( DEBUG_TAG, "Table " + TABLE_CAPITALS + " created" );
+        populate(db);
+    }
 
+    public void populate(SQLiteDatabase db) {
+        try {
+            Resources res = myContext.getResources();
+            InputStream in_s = res.openRawResource( R.raw.states );
+
+            // read the CSV data
+            CSVReader reader = new CSVReader( new InputStreamReader( in_s ) );
+            String [] nextLine;
+            while( ( nextLine = reader.readNext() ) != null ) {
+                ContentValues values = new ContentValues();
+                values.put( QuizDBHelper.CAPITALS_COLUMN_STATE, nextLine[0]);
+                values.put( QuizDBHelper.CAPITALS_COLUMN_CAPITAL, nextLine[1] );
+                values.put( QuizDBHelper.CAPITALS_COLUMN_CITY1, nextLine[2] );
+                values.put( QuizDBHelper.CAPITALS_COLUMN_CITY2, nextLine[3] );
+
+                long id = db.insert(QuizDBHelper.TABLE_CAPITALS, null, values );
+
+                Log.d( DEBUG_TAG, "Line: " + nextLine );
+            }
+        } catch (Exception e) {
+            Log.e( DEBUG_TAG, e.toString() );
+        }
     }
 
     public static void methodDrop(SQLiteDatabase db) {

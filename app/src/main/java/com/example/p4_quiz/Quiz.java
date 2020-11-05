@@ -38,7 +38,7 @@ public class Quiz extends AppCompatActivity {
     static QuizData quizQuestionsData;
 
     public QuizObject currentQuiz = new QuizObject();
-    public static final String DEBUG_TAG = "DEBUG_QuizQuestions";
+    public static final String DEBUG_TAG = "DEBUG_Quiz";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,12 +58,15 @@ public class Quiz extends AppCompatActivity {
             quizQuestionsData.close();
             quizQuestionsData.open();
             List<QuizQuestion> fullQuestionsList = quizQuestionsData.retrieveAllQuizQuestions();
-            Log.d(DEBUG_TAG, "JobLeadDBReaderTask: Job leads retrieved: " + fullQuestionsList.size());
+            Log.d(DEBUG_TAG, "Questions retrieved: " + fullQuestionsList.size());
 
-            quizList = new ArrayList<QuizQuestion>();
+            quizList = new ArrayList<>();
             Random rand = new Random();
             for (int i = 0; i < 6; i++) {
                 int pos = rand.nextInt( 50);
+                while(pos == 0){
+                    pos = rand.nextInt( 50);
+                }
                 quizList.add(fullQuestionsList.get(pos));
             }
         }
@@ -150,6 +153,7 @@ public class Quiz extends AppCompatActivity {
         }
 
         public PlaceholderFragment() {
+
         }
 
         @Override
@@ -177,25 +181,13 @@ public class Quiz extends AppCompatActivity {
         @Override
         public void onActivityCreated(Bundle savedInstanceState) {
             super.onActivityCreated(savedInstanceState);
-//                if (Quiz.class.isInstance(getActivity())) {
-//                    QuizData quizQuestionsData = new QuizData(getActivity());
-//                    quizQuestionsData.open();
-//                    List<QuizQuestion> fullQuestionsList = quizQuestionsData.retrieveAllQuizQuestions();
-//                    Log.d( DEBUG_TAG, "JobLeadDBReaderTask: Job leads retrieved: " + fullQuestionsList.size() );
-//
-//                    ArrayList<QuizQuestion> quizList = new ArrayList<QuizQuestion>();
-//                    Random rand = new Random();
-//                    for(int i=0; i<6; i++) {
-//                        int pos = rand.nextInt( 50 );
-//                        quizList.add( fullQuestionsList.get(pos));
-//                    }
 
                 Log.d( DEBUG_TAG, "onBindViewHolder: " + quizList );
 
-                quest = "What is the capital of " + quizList.get(questionNum - 1).getState().toString();
-                opt1 = quizList.get(questionNum - 1).getCapital().toString();
-                opt2 = quizList.get(questionNum - 1).getCity1().toString();
-                opt3 = quizList.get(questionNum - 1).getCity2().toString();
+                quest = "What is the capital of " + quizList.get(questionNum - 1).getState();
+                opt1 = quizList.get(questionNum - 1).getCapital();
+                opt2 = quizList.get(questionNum - 1).getCity1();
+                opt3 = quizList.get(questionNum - 1).getCity2();
 
                 ((Quiz) getActivity()).loadView(question, quest, option1, opt1, option2, opt2, option3, opt3);
             }
@@ -205,6 +197,7 @@ public class Quiz extends AppCompatActivity {
             {
                 quizQuestionsData.close();
                 super.onDestroy();
+
             }
         }
 
