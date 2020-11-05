@@ -14,6 +14,7 @@ import com.opencsv.CSVReader;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.sql.Date;
 
 public class QuizDBHelper extends SQLiteOpenHelper {
     private static final String DEBUG_TAG = "QuizDBHelper";
@@ -21,8 +22,6 @@ public class QuizDBHelper extends SQLiteOpenHelper {
     private static final String DB_NAME = "state.db";
     private static final int DB_VERSION = 1;
 
-    // Define all names (strings) for table and column names.
-    // This will be useful if we want to change these names later.
     public static final String TABLE_CAPITALS = "capitals";
     public static final String CAPITALS_COLUMN_ID = "_id";
     public static final String CAPITALS_COLUMN_STATE = "state";
@@ -30,12 +29,13 @@ public class QuizDBHelper extends SQLiteOpenHelper {
     public static final String CAPITALS_COLUMN_CITY1 = "city1";
     public static final String CAPITALS_COLUMN_CITY2 = "city2";
 
-    // This is a reference to the only instance for the helper.
+    public static final String TABLE_QUIZZES = "quizzes";
+    public static final String QUIZZES_COLUMN_ID = "_id";
+    public static final String QUIZZES_COLUMN_SCORE = "score";
+    public static final String QUIZZES_COLUMN_DATE = "date";
+
     private static QuizDBHelper helperInstance;
 
-    // A Create table SQL statement to create a table for job leads.
-    // Note that _id is an auto increment primary key, i.e. the database will
-    // automatically generate unique id values as keys.
     private static final String CREATE_CAPITALS =
             "create table " + TABLE_CAPITALS + " ("
                     + CAPITALS_COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
@@ -45,17 +45,18 @@ public class QuizDBHelper extends SQLiteOpenHelper {
                     + CAPITALS_COLUMN_CITY2 + " TEXT"
                     + ")";
 
-    // Note that the constructor is private!
-    // So, it can be called only from
-    // this class, in the getInstance method.
-    public QuizDBHelper(Context context) {
+    private static final String CREATE_QUIIZZES =
+            "create table " + TABLE_QUIZZES + " ("
+                    + QUIZZES_COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                    + QUIZZES_COLUMN_SCORE + " INTEGER, "
+                    + QUIZZES_COLUMN_DATE + " INTEGER "
+                    + ")";
+
+    private QuizDBHelper(Context context) {
         super( context, DB_NAME, null, DB_VERSION );
     }
 
-    // Access method to the single instance of the class.
-    // It is synchronized, so that only one thread executes this method.
     public static synchronized QuizDBHelper getInstance( Context context ) {
-        // check if the instance already exists and if not, create the instance
         if( helperInstance == null ) {
             helperInstance = new QuizDBHelper( context.getApplicationContext() );
         }
@@ -67,7 +68,9 @@ public class QuizDBHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate( SQLiteDatabase db ) {
         db.execSQL( "DROP TABLE IF EXISTS " + TABLE_CAPITALS);
+        db.execSQL( "DROP TABLE IF EXISTS " + TABLE_QUIZZES);
         db.execSQL( CREATE_CAPITALS );
+        db.execSQL( CREATE_QUIIZZES );
         Log.d( DEBUG_TAG, "Table " + TABLE_CAPITALS + " created" );
 
     }
@@ -76,6 +79,8 @@ public class QuizDBHelper extends SQLiteOpenHelper {
         if(db != null) {
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_CAPITALS);
             Log.d(DEBUG_TAG, "Table " + TABLE_CAPITALS + " dropped");
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_QUIZZES);
+            Log.d(DEBUG_TAG, "Table " + TABLE_QUIZZES + " dropped");
         }
 
     }
@@ -86,6 +91,7 @@ public class QuizDBHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade( SQLiteDatabase db, int oldVersion, int newVersion ) {
         db.execSQL( "DROP TABLE IF EXISTS " + TABLE_CAPITALS);
+        db.execSQL( "DROP TABLE IF EXISTS " + TABLE_QUIZZES);
         onCreate( db );
         Log.d( DEBUG_TAG, "Table " + TABLE_CAPITALS + " upgraded" );
     }

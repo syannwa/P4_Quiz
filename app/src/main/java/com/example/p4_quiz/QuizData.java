@@ -126,7 +126,7 @@ public class QuizData {
     }
 
     // Store a new job lead in the database.
-    public QuizQuestion storeJobLead( QuizQuestion question ) {
+    public QuizQuestion storeQuizQuestion( QuizQuestion question ) {
 
         // Prepare the values for all of the necessary columns in the table
         // and set their values to the variables of the JobLead argument.
