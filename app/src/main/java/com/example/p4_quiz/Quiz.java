@@ -71,28 +71,29 @@ public class Quiz extends AppCompatActivity {
                 list.remove(index);
             }
             createQuiz(quizList);
-
         }
 
         mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            boolean lastPage = false;
-            private int counterPageScroll;
 
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                if (position == 6 && positionOffset == 0 && !lastPage) {
-                    if (counterPageScroll != 0) {
-                        lastPage = true;
-                    }
-                    counterPageScroll++;
-                } else {
-                    counterPageScroll = 0;
-                }
+
             }
 
             @Override
             public void onPageSelected(int position) {
                 mActionBar.setTitle(mSectionsPagerAdapter.getPageTitle(position));
+                if(position != 5) {
+                    //Sydney!!!
+                    //grade question
+                    //increment number of correct answers (if applicable)
+                    Log.d(DEBUG_TAG, "Grade Question");
+                }
+                else if(position == 5) {
+                    Log.d(DEBUG_TAG, "Store Quiz");
+                    //Molly!!!
+                    //show submit button : button onclick stores final q answer, quiz results, launches results screen
+                }
             }
 
             @Override
@@ -140,7 +141,7 @@ public class Quiz extends AppCompatActivity {
 
         @Override
         public CharSequence getPageTitle(int position) {
-            int imageNum = position + 1;            //grade the question
+            int imageNum = position + 1;
             currentQuiz.setNumberAnswered(position);
             Log.d(DEBUG_TAG, "Number Answered: " + currentQuiz.getNumberAnswered());
             return String.valueOf("Question " + imageNum);
@@ -203,7 +204,7 @@ public class Quiz extends AppCompatActivity {
               intList.add(i);
             }
 
-            ArrayList<String> options = new ArrayList<String>();
+            ArrayList<String> options = new ArrayList<>();
             options.add(quizList.get(questionNum - 1).getCapital());
             options.add(quizList.get(questionNum - 1).getCity1());
             options.add(quizList.get(questionNum - 1).getCity2());
@@ -219,8 +220,7 @@ public class Quiz extends AppCompatActivity {
             ((Quiz) getActivity()).loadView(question, quest, option1, opt1, option2, opt2, option3, opt3);
         }
 
-
-            @Override
+        @Override
             public void onDestroy()
             {
                 quizQuestionsData.close();

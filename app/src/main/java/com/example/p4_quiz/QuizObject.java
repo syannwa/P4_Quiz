@@ -61,7 +61,7 @@ public class QuizObject {
 
     public void setQ4(QuizQuestion q) { this.q4 = q; }
 
-    public String getQ5() { return q1.toString(); }
+    public String getQ5() { return q5.toString(); }
 
     public void setQ5(QuizQuestion q) { this.q5 = q; }
 

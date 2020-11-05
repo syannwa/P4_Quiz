@@ -95,6 +95,7 @@ public class QuizData {
     // Store a new quiz in the database.
     public QuizObject storeQuiz( QuizObject quiz ) {
 
+
         ContentValues values = new ContentValues();
         values.put( QuizDBHelper.QUIZZES_COLUMN_SCORE, quiz.getScore());
 
