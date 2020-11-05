@@ -75,15 +75,6 @@ public class QuizDBHelper extends SQLiteOpenHelper {
 
     }
 
-    public static void methodDrop(SQLiteDatabase db) {
-        if(db != null) {
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_CAPITALS);
-            Log.d(DEBUG_TAG, "Table " + TABLE_CAPITALS + " dropped");
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_QUIZZES);
-            Log.d(DEBUG_TAG, "Table " + TABLE_QUIZZES + " dropped");
-        }
-
-    }
 
     // We should override onUpgrade method, which will be used to upgrade the database if
     // its version (DB_VERSION) has changed.  This will be done automatically by Android
@@ -95,7 +86,6 @@ public class QuizDBHelper extends SQLiteOpenHelper {
         onCreate( db );
         Log.d( DEBUG_TAG, "Table " + TABLE_CAPITALS + " upgraded" );
     }
-
 
 
 }

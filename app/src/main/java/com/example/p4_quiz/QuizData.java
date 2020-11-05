@@ -34,21 +34,30 @@ public class QuizData {
     public QuizData( Context context ) {
         this.quizDbHelper = QuizDBHelper.getInstance( context );
         this.myContext = context;
-        populate();
+
+        if(db == null) {
+            populate();
+        }
     }
 
     // Open the database
     public void open() {
         db = quizDbHelper.getWritableDatabase();
         Log.d( DEBUG_TAG, "JobLeadsData: db open" );
-        //populate();
+
+        //checking to see if a database has already been created. if not, make one
+        Cursor mCursor = db.rawQuery("SELECT * FROM " + QuizDBHelper.TABLE_CAPITALS, null);
+        if(mCursor.getCount() == 0)
+        {
+            populate();
+        }
     }
 
     // Close the database
     public void close() {
         if( quizDbHelper != null ) {
             quizDbHelper.close();
-            QuizDBHelper.methodDrop(db);
+            //QuizDBHelper.methodDrop(db);
             Log.d(DEBUG_TAG, "JobLeadsData: db closed");
         }
     }
@@ -62,17 +71,15 @@ public class QuizData {
             CSVReader reader = new CSVReader( new InputStreamReader( in_s ) );
             String [] nextLine;
             while( ( nextLine = reader.readNext() ) != null ) {
-                //for( int i = 0; i < nextLine.length; i++ ) {
-                    ContentValues values = new ContentValues();
-                    values.put( QuizDBHelper.CAPITALS_COLUMN_STATE, nextLine[0]);
-                    values.put( QuizDBHelper.CAPITALS_COLUMN_CAPITAL, nextLine[1] );
-                    values.put( QuizDBHelper.CAPITALS_COLUMN_CITY1, nextLine[2] );
-                    values.put( QuizDBHelper.CAPITALS_COLUMN_CITY2, nextLine[3] );
+                ContentValues values = new ContentValues();
+                values.put( QuizDBHelper.CAPITALS_COLUMN_STATE, nextLine[0]);
+                values.put( QuizDBHelper.CAPITALS_COLUMN_CAPITAL, nextLine[1] );
+                values.put( QuizDBHelper.CAPITALS_COLUMN_CITY1, nextLine[2] );
+                values.put( QuizDBHelper.CAPITALS_COLUMN_CITY2, nextLine[3] );
 
-                    long id = db.insert(QuizDBHelper.TABLE_CAPITALS, null, values );
+                long id = db.insert(QuizDBHelper.TABLE_CAPITALS, null, values );
 
-                    Log.d( DEBUG_TAG, "Line: " + nextLine );
-                //}
+                Log.d( DEBUG_TAG, "Line: " + nextLine );
 
             }
         } catch (Exception e) {
