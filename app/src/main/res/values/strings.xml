@@ -1,4 +1,11 @@
 <resources>
     <string name="app_name">State Capitals Quiz</string>
     <string name="united_states_map">United States map</string>
+    <string name="result">Result</string>
+    <string name="quiz_result">Quiz Result:</string>
+    <string name="_0_6">0/6</string>
+    <string name="_0_out_of_6">0 out of 6</string>
+    <string name="date_of_quiz_00_00_0000">Date of Quiz: 00/00/0000</string>
+    <string name="view_past_quizzes">View Past Quizzes</string>
+    <string name="take_new_quiz">Take New Quiz</string>
 </resources>

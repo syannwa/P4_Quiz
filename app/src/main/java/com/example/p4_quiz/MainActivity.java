@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Button continueButton;
     private TextView introduction;
-    private ImageView planeImage;
+    private ImageView img;
 
     @Override
     /**
@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
         //grabs all the views and sets the variables
         continueButton = findViewById(R.id.button);
         introduction = findViewById(R.id.textView2);
-        planeImage = findViewById(R.id.imageView4);
+        img = findViewById(R.id.imageView4);
         continueButton.setOnClickListener(new ButtonClickListener());
 
 
@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
             // Display the content of the file
             introduction.setText(new String(b));
             //set the image on the splash screen
-            planeImage.setImageResource(R.drawable.map);
+            img.setImageResource(R.drawable.map);
         }
         catch (Exception e)
         {
@@ -86,8 +86,10 @@ public class MainActivity extends AppCompatActivity {
          */
         public void onClick(View v)
         {
-            Intent intent = new Intent(v.getContext(), Quiz.class);
-            startActivity(intent);
+            if(v == continueButton) {
+                Intent intent = new Intent(v.getContext(), Quiz.class);
+                startActivity(intent);
+            }
         }
     }
 }

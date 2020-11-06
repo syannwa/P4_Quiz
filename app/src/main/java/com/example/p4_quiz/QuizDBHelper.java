@@ -6,15 +6,11 @@ import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
-import android.widget.TableLayout;
-import android.widget.TableRow;
-import android.widget.TextView;
 
 import com.opencsv.CSVReader;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.sql.Date;
 
 public class QuizDBHelper extends SQLiteOpenHelper {
     private static final String DEBUG_TAG = "QuizDBHelper";

@@ -1,10 +1,12 @@
 package com.example.p4_quiz;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
@@ -15,8 +17,10 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -25,6 +29,9 @@ public class Quiz extends AppCompatActivity {
     SectionsPagerAdapter mSectionsPagerAdapter;
     ViewPager mViewPager;
     ActionBar mActionBar;
+    static Button submitButton;
+    static Button viewPastResults;
+    static Button newQuiz;
     static ArrayList<QuizQuestion> quizList;
     static QuizData quizQuestionsData;
 
@@ -93,6 +100,9 @@ public class Quiz extends AppCompatActivity {
                     Log.d(DEBUG_TAG, "Store Quiz");
                     //Molly!!!
                     //show submit button : button onclick stores final q answer, quiz results, launches results screen
+                    //this makes the button visible on the last page!
+                    submitButton.setVisibility(View.VISIBLE);
+                    submitButton.setOnClickListener(new Quiz.ButtonClickListener());
                 }
             }
 
@@ -100,6 +110,51 @@ public class Quiz extends AppCompatActivity {
             public void onPageScrollStateChanged(int state) {
             }
         });
+
+
+    }
+
+    /**
+     * Listens for the button to be clicked and calls onClick when button is clicked
+     */
+    private class ButtonClickListener implements View.OnClickListener
+    {
+        @Override
+        public void onClick(View v)
+        {
+            //goes to the results page if the submit button is pushed
+            //for right now the score brought up isnt pulled from the database and is just a placeholder,
+            //so that part needs to be changed. it gets the date but it needs to be stored into the database
+            //if a date is already stored, just pull it from the database instead
+            if(v == submitButton) {
+                setContentView(R.layout.activity_result);
+                newQuiz = (Button) findViewById(R.id.button);
+                viewPastResults = (Button) findViewById(R.id.button2);
+                newQuiz.setOnClickListener(new Quiz.ButtonClickListener());
+                viewPastResults.setOnClickListener(new Quiz.ButtonClickListener());
+                TextView resultText = (TextView) findViewById(R.id.textView3);
+                TextView dateText = (TextView) findViewById(R.id.textView4);
+                //need to get the result from the database and then set this text box to the appropriate value
+                resultText.setText("6 out of 6");       //this is just a placeholder for now
+                //should store this in the database or replace this with getting this from the database
+                Date date = new Date();
+                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss");
+                String strDate = formatter.format(date);
+                dateText.setText(strDate);
+            }
+            //if the new quiz button is pushed on the results page
+            else if(v == newQuiz) {
+                Intent intent = new Intent(v.getContext(), Quiz.class);
+                startActivity(intent);
+            }
+            //if view past results button is pushed on the results page
+            else if(v == viewPastResults)
+            {
+                //open view quiz results page
+
+            }
+
+        }
     }
 
     private QuizObject createQuiz(ArrayList<QuizQuestion> quizList) {
@@ -186,6 +241,7 @@ public class Quiz extends AppCompatActivity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.activity_quiz, container, false);
+            submitButton = (Button) rootView.findViewById(R.id.button3);
             question = (TextView) rootView.findViewById(R.id.textView1);
             option1 = (RadioButton) rootView.findViewById(R.id.radioButton);
             option2 = (RadioButton) rootView.findViewById(R.id.radioButton2);
