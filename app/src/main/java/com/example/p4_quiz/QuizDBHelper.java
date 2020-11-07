@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import com.opencsv.CSVReader;
@@ -46,7 +47,7 @@ public class QuizDBHelper extends SQLiteOpenHelper {
             "create table " + TABLE_QUIZZES + " ("
                     + QUIZZES_COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                     + QUIZZES_COLUMN_SCORE + " INTEGER, "
-                    + QUIZZES_COLUMN_DATE + " INTEGER "
+                    + QUIZZES_COLUMN_DATE + " TEXT "
                     + ")";
 
     private QuizDBHelper(Context context) {
@@ -70,7 +71,36 @@ public class QuizDBHelper extends SQLiteOpenHelper {
         db.execSQL( CREATE_CAPITALS );
         db.execSQL( CREATE_QUIIZZES );
         Log.d( DEBUG_TAG, "Table " + TABLE_CAPITALS + " created" );
-        populate(db);
+        new QuizDBPopulateTask().execute( db );
+    }
+
+    private class QuizDBPopulateTask extends AsyncTask<SQLiteDatabase, Void, SQLiteDatabase> {
+
+        @Override
+        protected SQLiteDatabase doInBackground(SQLiteDatabase... sqLiteDatabases) {
+            try {
+                Resources res = myContext.getResources();
+                InputStream in_s = res.openRawResource( R.raw.states );
+
+                // read the CSV data
+                CSVReader reader = new CSVReader( new InputStreamReader( in_s ) );
+                String [] nextLine;
+                while( ( nextLine = reader.readNext() ) != null ) {
+                    ContentValues values = new ContentValues();
+                    values.put( QuizDBHelper.CAPITALS_COLUMN_STATE, nextLine[0]);
+                    values.put( QuizDBHelper.CAPITALS_COLUMN_CAPITAL, nextLine[1] );
+                    values.put( QuizDBHelper.CAPITALS_COLUMN_CITY1, nextLine[2] );
+                    values.put( QuizDBHelper.CAPITALS_COLUMN_CITY2, nextLine[3] );
+
+                    long id = sqLiteDatabases[0].insert(QuizDBHelper.TABLE_CAPITALS, null, values );
+
+                    Log.d( DEBUG_TAG, "Line: " + nextLine );
+                }
+            } catch (Exception e) {
+                Log.e( DEBUG_TAG, e.toString() );
+            }
+            return null;
+        }
     }
 
     public void populate(SQLiteDatabase db) {

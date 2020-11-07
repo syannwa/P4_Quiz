@@ -1,6 +1,9 @@
 package com.example.p4_quiz;
 
-public class QuizQuestion {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class QuizQuestion implements Parcelable {
     private long   id;
     private String state;
     private String capital;
@@ -26,6 +29,40 @@ public class QuizQuestion {
 
 
     }
+
+    protected QuizQuestion(Parcel in) {
+        id = in.readLong();
+        state = in.readString();
+        capital = in.readString();
+        city1 = in.readString();
+        city2 = in.readString();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(id);
+        dest.writeString(state);
+        dest.writeString(capital);
+        dest.writeString(city1);
+        dest.writeString(city2);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<QuizQuestion> CREATOR = new Creator<QuizQuestion>() {
+        @Override
+        public QuizQuestion createFromParcel(Parcel in) {
+            return new QuizQuestion(in);
+        }
+
+        @Override
+        public QuizQuestion[] newArray(int size) {
+            return new QuizQuestion[size];
+        }
+    };
 
     public long getId() { return id; }
 

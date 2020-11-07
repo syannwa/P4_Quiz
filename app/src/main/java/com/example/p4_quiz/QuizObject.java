@@ -11,7 +11,7 @@ public class QuizObject {
     private QuizQuestion q5;
     private QuizQuestion q6;
     private Integer numberAnswered;
-    private Date date;
+    private String date;
     private Integer score;
 
 
@@ -39,6 +39,19 @@ public class QuizObject {
         this.q6 = q6;
         this.numberAnswered = 0;
         this.score = 0;
+    }
+
+    public QuizObject(Integer score, String date){
+        this.id = -1;
+        this.q1 = null;
+        this.q2 = null;
+        this.q3 = null;
+        this.q4 = null;
+        this.q5 = null;
+        this.q6 = null;
+        this.numberAnswered = 0;
+        this.date = date;
+        this.score = score;
     }
 
     public long getId() { return id; }
@@ -84,9 +97,9 @@ public class QuizObject {
 
     public void incrementScore() { this.score += 1; }
 
-    public Date getDate() { return date; }
+    public String getDate() { return date; }
 
-    public void setDate(Date date) { this.date = date; }
+    public void setDate(String date) { this.date = date; }
 
     public String toString()
     {

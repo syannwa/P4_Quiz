@@ -1,7 +1,9 @@
 package com.example.p4_quiz;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,7 +12,9 @@ import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -27,65 +31,102 @@ import java.util.Random;
 
 public class Quiz extends AppCompatActivity {
 
+    public static final String NUMBER_ANSWERED = "num answered";
+    public static final String SCORE = "score";
+    public static final String QUIZ_LIST = "quiz question list";
+    public static final String ANSWERED = "is answered";
+    public static final String ADAPTER = "adapter";
+
     SectionsPagerAdapter mSectionsPagerAdapter;
     ViewPager mViewPager;
     ActionBar mActionBar;
+
     static Button submitButton;
     static Button viewPastResults;
     static Button newQuiz;
-    RadioGroup radioGroup;
-    RadioButton rbSelected;
+
+    static RadioGroup radioGroup;
+    static RadioButton rbSelected;
+
     static ArrayList<QuizQuestion> quizList;
     static QuizData quizQuestionsData;
     static String correctAnswer;
-    static String user;
-    Boolean correct = false;
-
+    public Boolean correct = false;
     public QuizObject currentQuiz = new QuizObject();
+    public Integer score;
+    public Integer numAnswered;
+    public Boolean answered;
     public static final String DEBUG_TAG = "DEBUG_QuizQuestions";
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        //Need to save num questions answered, score, and quizlist
+        super.onSaveInstanceState(outState);
+        Parcelable parcelable = mSectionsPagerAdapter.saveState();
+        outState.putParcelable(ADAPTER, parcelable);
+        outState.putInt(NUMBER_ANSWERED, currentQuiz.getNumberAnswered());
+        outState.putInt(SCORE, currentQuiz.getScore());
+        //outState.putBoolean(ANSWERED, answered);
+        outState.putParcelableArrayList(QUIZ_LIST, (ArrayList<? extends Parcelable>) quizList);
+
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_pager);
 
-        QuizDBHelper helper = QuizDBHelper.getInstance(getApplicationContext());
+        //QuizDBHelper helper = QuizDBHelper.getInstance(getApplicationContext());
+        QuizDBHelper helper = QuizDBHelper.getInstance(this);
 
         mActionBar = getSupportActionBar();
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), 6);
-        mActionBar.setTitle(mSectionsPagerAdapter.getPageTitle(0));
+        //mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), 6);
         mViewPager = (ViewPager) findViewById(R.id.pager);
-        mViewPager.setAdapter(mSectionsPagerAdapter);
-
-        String userAnswer = "";
 
         if (Quiz.class.isInstance(this)) {
+
             quizQuestionsData = new QuizData(this);
-            quizQuestionsData.close();
             quizQuestionsData.open();
-            List<QuizQuestion> fullQuestionsList = quizQuestionsData.retrieveAllQuizQuestions();
-            Log.d(DEBUG_TAG, "JobLeadDBReaderTask: Job leads retrieved: " + fullQuestionsList.size());
 
-            quizList = new ArrayList<>();
+            //If new quiz
+            if(savedInstanceState == null) {
+                mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), 6);
+                mActionBar.setTitle(mSectionsPagerAdapter.getPageTitle(0));
+                mViewPager.setAdapter(mSectionsPagerAdapter);
 
-            int size = 50;
-            ArrayList<Integer> list = new ArrayList<>(size);
-            for(int i = 0; i <= size; i++) {
-                list.add(i);
-            }
+                List<QuizQuestion> fullQuestionsList = quizQuestionsData.retrieveAllQuizQuestions();
+                Log.d(DEBUG_TAG, "JobLeadDBReaderTask: Job leads retrieved: " + fullQuestionsList.size());
 
-            Random rand = new Random();
-            for (int i = 0; i < 6; i++) {
-                int index = rand.nextInt(list.size());
-                if(index != 0) {
-                    quizList.add(fullQuestionsList.get(list.get(index)));
+                quizList = new ArrayList<>();
+                int size = 50;
+                ArrayList<Integer> list = new ArrayList<>(size);
+                for (int i = 0; i <= size; i++) {
+                    list.add(i);
                 }
-                else
-                    i--;
-                Log.d( DEBUG_TAG, "Random number selected: " + list.get(index) );
-                list.remove(index);
+
+                Random rand = new Random();
+                for (int i = 0; i < 6; i++) {
+                    int index = rand.nextInt(list.size());
+                    if (index != 0) {
+                        quizList.add(fullQuestionsList.get(list.get(index)));
+                    } else
+                        i--;
+                    Log.d(DEBUG_TAG, "Random number selected: " + list.get(index));
+                    list.remove(index);
+                }
+                createQuiz(quizList);
             }
-            createQuiz(quizList);
+            else {
+                quizList = savedInstanceState.<QuizQuestion>getParcelableArrayList(QUIZ_LIST);
+                currentQuiz.setScore(savedInstanceState.getInt(SCORE));
+                currentQuiz.setNumberAnswered(savedInstanceState.getInt(NUMBER_ANSWERED));
+                numAnswered = savedInstanceState.getInt(NUMBER_ANSWERED);
+                mSectionsPagerAdapter = savedInstanceState.getParcelable(ADAPTER);
+
+                mViewPager.setAdapter(mSectionsPagerAdapter);
+                //mActionBar.setTitle(mSectionsPagerAdapter.getPageTitle(numAnswered));
+            }
+
         }
 
         mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -93,7 +134,7 @@ public class Quiz extends AppCompatActivity {
 
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
+                pos=position;
             }
 
             @Override
@@ -105,26 +146,14 @@ public class Quiz extends AppCompatActivity {
             public void onPageScrollStateChanged(int state) {
                 if(state == 1) {
                     Log.d(DEBUG_TAG, "pos: " + pos);
-                    checkChange();
                     gradeQuestion(pos);
                 }
-            }
-
-            public void checkChange() {
-                radioGroup = findViewById(R.id.radioGroup);
-                radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(RadioGroup group, int checkedId) {
-                        rbSelected = findViewById(radioGroup.getCheckedRadioButtonId());
-                    }
-                });
-                Log.d(DEBUG_TAG, "RBSelected: " + rbSelected.getText());
             }
 
             public void gradeQuestion(int position) {
                 if(position != 5) {
                     //Sydney!!!
-                    //grade question
+                    Log.d(DEBUG_TAG, "RBSelected: " + rbSelected.getText());
                     Log.d(DEBUG_TAG, "Correct Answer: " + quizList.get(position).getCapital());
                     correct = quizList.get(position).gradeQuestion(String.valueOf(rbSelected.getText()));
                     Log.d(DEBUG_TAG, "Correct?: " + correct);
@@ -132,8 +161,6 @@ public class Quiz extends AppCompatActivity {
                         currentQuiz.incrementScore();
                     }
                     Log.d(DEBUG_TAG, "Score: " + currentQuiz.getScore());
-                    //increment number of correct answers (if applicable)
-                    Log.d(DEBUG_TAG, "Grade Question");
                 }
                 else if(position == 5) {
                     Log.d(DEBUG_TAG, "Store Quiz");
@@ -158,24 +185,26 @@ public class Quiz extends AppCompatActivity {
         @Override
         public void onClick(View v)
         {
-            //goes to the results page if the submit button is pushed
-            //for right now the score brought up isnt pulled from the database and is just a placeholder,
-            //so that part needs to be changed. it gets the date but it needs to be stored into the database
-            //if a date is already stored, just pull it from the database instead
             if(v == submitButton) {
                 setContentView(R.layout.activity_result);
                 newQuiz = (Button) findViewById(R.id.button);
                 viewPastResults = (Button) findViewById(R.id.button2);
                 newQuiz.setOnClickListener(new Quiz.ButtonClickListener());
                 viewPastResults.setOnClickListener(new Quiz.ButtonClickListener());
+
                 TextView resultText = (TextView) findViewById(R.id.textView3);
                 TextView dateText = (TextView) findViewById(R.id.textView4);
+
                 //need to get the result from the database and then set this text box to the appropriate value
-                resultText.setText("6 out of 6");       //this is just a placeholder for now
+                resultText.setText(currentQuiz.getScore() + " out of 6");
                 //should store this in the database or replace this with getting this from the database
                 Date date = new Date();
                 SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss");
                 String strDate = formatter.format(date);
+                currentQuiz.setDate(strDate);
+
+                quizQuestionsData.storeQuiz(currentQuiz);
+                new QuizDBWriterTask().execute( currentQuiz );
                 dateText.setText(strDate);
             }
             //if the new quiz button is pushed on the results page
@@ -186,10 +215,22 @@ public class Quiz extends AppCompatActivity {
             //if view past results button is pushed on the results page
             else if(v == viewPastResults)
             {
-                //open view quiz results page
-
+                Intent intent = new Intent(v.getContext(), ReviewQuizzesActivity.class);
+                startActivity(intent);
             }
 
+        }
+    }
+
+    private class QuizDBWriterTask extends AsyncTask<QuizObject, Void, QuizObject> {
+
+        // This method will run as a background process to write into db.
+        // It will be automatically invoked by Android, when we call the execute method
+        // in the onClick listener of the Save button.
+        @Override
+        protected QuizObject doInBackground( QuizObject... quiz ) {
+            quizQuestionsData.storeQuiz( quiz[0] );
+            return quiz[0];
         }
     }
 
@@ -250,7 +291,6 @@ public class Quiz extends AppCompatActivity {
         private RadioButton option1;
         private RadioButton option2;
         private RadioButton option3;
-        private RadioGroup radioGroup;
 
         public static PlaceholderFragment newInstance(int sectionNumber) {
             PlaceholderFragment fragment = new PlaceholderFragment();
@@ -284,6 +324,14 @@ public class Quiz extends AppCompatActivity {
             option2 = (RadioButton) rootView.findViewById(R.id.radioButton2);
             option3 = (RadioButton) rootView.findViewById(R.id.radioButton3);
             radioGroup = rootView.findViewById(R.id.radioGroup);
+
+            radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(RadioGroup group, int checkedId) {
+                    rbSelected = rootView.findViewById(checkedId);
+                }
+            });
+
             return rootView;
         }
 
@@ -314,22 +362,6 @@ public class Quiz extends AppCompatActivity {
 
             ((Quiz) getActivity()).loadView(question, quest, option1, opt1, option2, opt2, option3, opt3);
 
-            radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener()
-            {
-                public void onCheckedChanged(RadioGroup group, int checkedId)
-                {
-                    // This will get the radiobutton that has changed in its check state
-                    RadioButton checkedRadioButton = (RadioButton)group.findViewById(checkedId);
-                    // This puts the value (true/false) into the variable
-                    boolean isChecked = checkedRadioButton.isChecked();
-                    // If the radiobutton that has changed in check state is now checked...
-                    if (isChecked)
-                    {
-                        // Changes the textview's text to "Checked: example radiobutton text"
-                        user = (String) checkedRadioButton.getText();
-                    }
-                }
-            });
         }
 
         @Override
