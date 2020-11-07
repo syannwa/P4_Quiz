@@ -63,4 +63,11 @@ public class QuizQuestion {
     {
         return id + ": " + state + " " + capital + " " + city1 + " " + city2;
     }
+
+    public boolean gradeQuestion(String answer) {
+        if(capital.equals(answer)) {
+            return true;
+        }
+        else return false;
+    }
 }

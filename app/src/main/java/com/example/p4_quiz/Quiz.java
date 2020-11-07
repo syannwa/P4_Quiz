@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import androidx.appcompat.app.ActionBar;
@@ -32,8 +33,13 @@ public class Quiz extends AppCompatActivity {
     static Button submitButton;
     static Button viewPastResults;
     static Button newQuiz;
+    RadioGroup radioGroup;
+    RadioButton rbSelected;
     static ArrayList<QuizQuestion> quizList;
     static QuizData quizQuestionsData;
+    static String correctAnswer;
+    static String user;
+    Boolean correct = false;
 
     public QuizObject currentQuiz = new QuizObject();
     public static final String DEBUG_TAG = "DEBUG_QuizQuestions";
@@ -50,6 +56,8 @@ public class Quiz extends AppCompatActivity {
         mActionBar.setTitle(mSectionsPagerAdapter.getPageTitle(0));
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
+
+        String userAnswer = "";
 
         if (Quiz.class.isInstance(this)) {
             quizQuestionsData = new QuizData(this);
@@ -81,6 +89,7 @@ public class Quiz extends AppCompatActivity {
         }
 
         mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            int pos;
 
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -90,9 +99,39 @@ public class Quiz extends AppCompatActivity {
             @Override
             public void onPageSelected(int position) {
                 mActionBar.setTitle(mSectionsPagerAdapter.getPageTitle(position));
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                if(state == 1) {
+                    Log.d(DEBUG_TAG, "pos: " + pos);
+                    checkChange();
+                    gradeQuestion(pos);
+                }
+            }
+
+            public void checkChange() {
+                radioGroup = findViewById(R.id.radioGroup);
+                radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(RadioGroup group, int checkedId) {
+                        rbSelected = findViewById(radioGroup.getCheckedRadioButtonId());
+                    }
+                });
+                Log.d(DEBUG_TAG, "RBSelected: " + rbSelected.getText());
+            }
+
+            public void gradeQuestion(int position) {
                 if(position != 5) {
                     //Sydney!!!
                     //grade question
+                    Log.d(DEBUG_TAG, "Correct Answer: " + quizList.get(position).getCapital());
+                    correct = quizList.get(position).gradeQuestion(String.valueOf(rbSelected.getText()));
+                    Log.d(DEBUG_TAG, "Correct?: " + correct);
+                    if(correct) {
+                        currentQuiz.incrementScore();
+                    }
+                    Log.d(DEBUG_TAG, "Score: " + currentQuiz.getScore());
                     //increment number of correct answers (if applicable)
                     Log.d(DEBUG_TAG, "Grade Question");
                 }
@@ -106,9 +145,6 @@ public class Quiz extends AppCompatActivity {
                 }
             }
 
-            @Override
-            public void onPageScrollStateChanged(int state) {
-            }
         });
 
 
@@ -214,6 +250,7 @@ public class Quiz extends AppCompatActivity {
         private RadioButton option1;
         private RadioButton option2;
         private RadioButton option3;
+        private RadioGroup radioGroup;
 
         public static PlaceholderFragment newInstance(int sectionNumber) {
             PlaceholderFragment fragment = new PlaceholderFragment();
@@ -246,6 +283,7 @@ public class Quiz extends AppCompatActivity {
             option1 = (RadioButton) rootView.findViewById(R.id.radioButton);
             option2 = (RadioButton) rootView.findViewById(R.id.radioButton2);
             option3 = (RadioButton) rootView.findViewById(R.id.radioButton3);
+            radioGroup = rootView.findViewById(R.id.radioGroup);
             return rootView;
         }
 
@@ -264,6 +302,7 @@ public class Quiz extends AppCompatActivity {
             options.add(quizList.get(questionNum - 1).getCapital());
             options.add(quizList.get(questionNum - 1).getCity1());
             options.add(quizList.get(questionNum - 1).getCity2());
+            correctAnswer = quizList.get(questionNum - 1).getCapital();
 
             Collections.shuffle(options);
 
@@ -274,6 +313,23 @@ public class Quiz extends AppCompatActivity {
             opt3 = options.get(2);
 
             ((Quiz) getActivity()).loadView(question, quest, option1, opt1, option2, opt2, option3, opt3);
+
+            radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener()
+            {
+                public void onCheckedChanged(RadioGroup group, int checkedId)
+                {
+                    // This will get the radiobutton that has changed in its check state
+                    RadioButton checkedRadioButton = (RadioButton)group.findViewById(checkedId);
+                    // This puts the value (true/false) into the variable
+                    boolean isChecked = checkedRadioButton.isChecked();
+                    // If the radiobutton that has changed in check state is now checked...
+                    if (isChecked)
+                    {
+                        // Changes the textview's text to "Checked: example radiobutton text"
+                        user = (String) checkedRadioButton.getText();
+                    }
+                }
+            });
         }
 
         @Override

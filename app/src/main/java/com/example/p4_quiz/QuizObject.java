@@ -88,7 +88,6 @@ public class QuizObject {
 
     public void setDate(Date date) { this.date = date; }
 
-
     public String toString()
     {
         return id + ": " + score + " " + date;
