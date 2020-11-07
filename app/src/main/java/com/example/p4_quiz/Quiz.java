@@ -36,6 +36,7 @@ public class Quiz extends AppCompatActivity {
     public static final String QUIZ_LIST = "quiz question list";
     public static final String ANSWERED = "is answered";
     public static final String ADAPTER = "adapter";
+    public static final String OPTIONS = "options";
 
     SectionsPagerAdapter mSectionsPagerAdapter;
     ViewPager mViewPager;
@@ -57,6 +58,8 @@ public class Quiz extends AppCompatActivity {
     public Integer numAnswered;
     public Boolean answered;
     public static final String DEBUG_TAG = "DEBUG_QuizQuestions";
+
+    public static ArrayList<String> options;
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
@@ -203,7 +206,7 @@ public class Quiz extends AppCompatActivity {
                 String strDate = formatter.format(date);
                 currentQuiz.setDate(strDate);
 
-                quizQuestionsData.storeQuiz(currentQuiz);
+                //quizQuestionsData.storeQuiz(currentQuiz);
                 new QuizDBWriterTask().execute( currentQuiz );
                 dateText.setText(strDate);
             }
@@ -224,9 +227,6 @@ public class Quiz extends AppCompatActivity {
 
     private class QuizDBWriterTask extends AsyncTask<QuizObject, Void, QuizObject> {
 
-        // This method will run as a background process to write into db.
-        // It will be automatically invoked by Android, when we call the execute method
-        // in the onClick listener of the Save button.
         @Override
         protected QuizObject doInBackground( QuizObject... quiz ) {
             quizQuestionsData.storeQuiz( quiz[0] );
@@ -341,18 +341,25 @@ public class Quiz extends AppCompatActivity {
 
             Log.d( DEBUG_TAG, "onBindViewHolder: " + quizList );
 
-            ArrayList<Integer> intList = new ArrayList<>(3);
-            for(int i = 0; i <= 2; i++) {
-              intList.add(i);
+            if(savedInstanceState == null) {
+                ArrayList<Integer> intList = new ArrayList<>(3);
+                for (int i = 0; i <= 2; i++) {
+                    intList.add(i);
+                }
+
+                options = new ArrayList<String>();
+
+                options.add(quizList.get(questionNum - 1).getCapital());
+                options.add(quizList.get(questionNum - 1).getCity1());
+                options.add(quizList.get(questionNum - 1).getCity2());
+                correctAnswer = quizList.get(questionNum - 1).getCapital();
+
+                Collections.shuffle(options);
             }
-
-            ArrayList<String> options = new ArrayList<>();
-            options.add(quizList.get(questionNum - 1).getCapital());
-            options.add(quizList.get(questionNum - 1).getCity1());
-            options.add(quizList.get(questionNum - 1).getCity2());
-            correctAnswer = quizList.get(questionNum - 1).getCapital();
-
-            Collections.shuffle(options);
+            else {
+                options = savedInstanceState.getStringArrayList(OPTIONS);
+                Log.d(DEBUG_TAG, "" + options);
+            }
 
             quest = "What is the capital of " + quizList.get(questionNum - 1).getState();
 
@@ -361,7 +368,12 @@ public class Quiz extends AppCompatActivity {
             opt3 = options.get(2);
 
             ((Quiz) getActivity()).loadView(question, quest, option1, opt1, option2, opt2, option3, opt3);
+        }
 
+        @Override
+        public void onSaveInstanceState(@NonNull Bundle outState) {
+            super.onSaveInstanceState(outState);
+            outState.putStringArrayList(OPTIONS, options);
         }
 
         @Override
@@ -371,5 +383,7 @@ public class Quiz extends AppCompatActivity {
                 super.onDestroy();
             }
         }
+
+
 
     }
