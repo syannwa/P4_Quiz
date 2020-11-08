@@ -25,6 +25,9 @@ import org.w3c.dom.Text;
 import java.io.InputStream;
 
 /**
+ * CSCI 4060 Project 4 : State Capitals Quiz
+ * Molly Hutchinson and Sydney Waters
+ *
  * The Main Activity for the State Capitals Quiz. Used to start a new quiz
  * or to view the past quizzes
  */
@@ -53,7 +56,6 @@ public class MainActivity extends AppCompatActivity {
         img = findViewById(R.id.imageView4);
         continueButton.setOnClickListener(new ButtonClickListener());
         viewQuizzes.setOnClickListener(new ButtonClickListener());
-
 
         //tries to open the resources for the main textView on the main activity.
         try

@@ -69,8 +69,6 @@ public class Quiz extends AppCompatActivity {
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         //Need to save num questions answered, score, and quizlist
         super.onSaveInstanceState(outState);
-        //Parcelable parcelable = mSectionsPagerAdapter.saveState();
-        //outState.putParcelable(ADAPTER, parcelable);
         outState.putInt(NUMBER_ANSWERED, currentQuiz.getNumberAnswered());
         outState.putInt(SCORE, currentQuiz.getScore());
         outState.putParcelableArrayList(QUIZ_LIST, (ArrayList<? extends Parcelable>) quizList);
@@ -94,7 +92,6 @@ public class Quiz extends AppCompatActivity {
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
         if (Quiz.class.isInstance(this)) {
-            //mSectionsPagerAdapter = new SectionsPagerAdapter(getChildFragmentManager(), 6);
 
             if(savedInstanceState == null) {
 
@@ -258,9 +255,9 @@ public class Quiz extends AppCompatActivity {
     public void loadView(TextView question, String quest, RadioButton option1, String opt1, RadioButton option2,
                          String opt2, RadioButton option3, String opt3) {
         question.setText(quest);
-        option1.setText(opt1);
-        option2.setText(opt2);
-        option3.setText(opt3);
+        option1.setText("A) " + opt1);
+        option2.setText("B) " + opt2);
+        option3.setText("C) " + opt3);
     }
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
@@ -379,7 +376,6 @@ public class Quiz extends AppCompatActivity {
                 correctAnswer = quizList.get(questionNum - 1).getCapital();
 
                 Collections.shuffle(options);
-                //currentOptions = options;
             }
             else {
                 options = new ArrayList<String>();
@@ -406,7 +402,6 @@ public class Quiz extends AppCompatActivity {
         @Override
         public void onSaveInstanceState(@NonNull Bundle outState) {
             super.onSaveInstanceState(outState);
-            //outState.putStringArrayList(OPTIONS, currentOptions);
         }
 
         @Override

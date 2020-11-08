@@ -33,7 +33,6 @@ public class QuizRecyclerAdapter extends RecyclerView.Adapter<QuizRecyclerAdapte
 
             date = (TextView) itemView.findViewById( R.id.date );
             score = (TextView) itemView.findViewById( R.id.score );
-
         }
     }
 

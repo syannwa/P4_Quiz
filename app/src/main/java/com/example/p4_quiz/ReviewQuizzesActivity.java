@@ -49,10 +49,6 @@ public class ReviewQuizzesActivity extends AppCompatActivity {
     // This is an AsyncTask class (it extends AsyncTask) to perform DB reading of job leads, asynchronously.
     private class QuizzesDBReaderTask extends AsyncTask<Void, Void, List<QuizObject>> {
 
-        // This method will run as a background process to read from db.
-        // It returns a list of retrieved JobLead objects.
-        // It will be automatically invoked by Android, when we call the execute method
-        // in the onCreate callback (the job leads review activity is started).
         @Override
         protected List<QuizObject> doInBackground( Void... params ) {
             quizData.open();
@@ -61,12 +57,8 @@ public class ReviewQuizzesActivity extends AppCompatActivity {
             return quizList;
         }
 
-        // This method will be automatically called by Android once the db reading
-        // background process is finished.  It will then create and set an adapter to provide
-        // values for the RecyclerView.
-        // onPostExecute is like the notify method in an asynchronous method call discussed in class.
         @Override
-        protected void onPostExecute( List<QuizObject> jobLeadsList ) {
+        protected void onPostExecute( List<QuizObject> quizObjectList ) {
             super.onPostExecute(quizList);
             recyclerAdapter = new QuizRecyclerAdapter( quizList );
             recyclerView.setAdapter( recyclerAdapter );
@@ -89,7 +81,6 @@ public class ReviewQuizzesActivity extends AppCompatActivity {
         super.onPause();
     }
 
-    // These activity callback methods are not needed and are for edational purposes only
     @Override
     protected void onStart() {
         super.onStart();

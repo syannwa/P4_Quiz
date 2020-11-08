@@ -111,31 +111,6 @@ public class QuizDBHelper extends SQLiteOpenHelper {
         }
     }
 
-//    public void populate(SQLiteDatabase db) {
-//        try {
-//            Resources res = myContext.getResources();
-//            InputStream in_s = res.openRawResource( R.raw.states );
-//
-//            // read the CSV data
-//            CSVReader reader = new CSVReader( new InputStreamReader( in_s ) );
-//            String [] nextLine;
-//            while( ( nextLine = reader.readNext() ) != null ) {
-//                ContentValues values = new ContentValues();
-//                values.put( QuizDBHelper.CAPITALS_COLUMN_STATE, nextLine[0]);
-//                values.put( QuizDBHelper.CAPITALS_COLUMN_CAPITAL, nextLine[1] );
-//                values.put( QuizDBHelper.CAPITALS_COLUMN_CITY1, nextLine[2] );
-//                values.put( QuizDBHelper.CAPITALS_COLUMN_CITY2, nextLine[3] );
-//
-//                long id = db.insert(QuizDBHelper.TABLE_CAPITALS, null, values );
-//
-//                Log.d( DEBUG_TAG, "Line: " + nextLine );
-//            }
-//        } catch (Exception e) {
-//            Log.e( DEBUG_TAG, e.toString() );
-//        }
-//    }
-
-
     // We should override onUpgrade method, which will be used to upgrade the database if
     // its version (DB_VERSION) has changed
     @Override
