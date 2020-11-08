@@ -101,11 +101,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
 
             }
-            else if(v == viewQuizzes)
-            {
-                Intent intent = new Intent(v.getContext(), ReviewQuizzesActivity.class);
-                startActivity(intent);
-            }
         }
     }
 }
