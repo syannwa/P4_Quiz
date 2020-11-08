@@ -46,7 +46,7 @@ public class ReviewQuizzesActivity extends AppCompatActivity {
 
     }
 
-    // This is an AsyncTask class (it extends AsyncTask) to read the quizzes
+    // This is an AsyncTask class (it extends AsyncTask) to read quizzes
     private class QuizzesDBReaderTask extends AsyncTask<Void, Void, List<QuizObject>> {
 
         @Override
