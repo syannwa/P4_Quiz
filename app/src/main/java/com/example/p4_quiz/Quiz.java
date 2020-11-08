@@ -51,6 +51,7 @@ public class Quiz extends AppCompatActivity {
     static RadioGroup radioGroup;
     static RadioButton rbSelected;
 
+    static List<QuizQuestion> fullQuestionsList;
     static ArrayList<QuizQuestion> quizList;
     static QuizData quizQuestionsData;
     static String correctAnswer;
@@ -99,27 +100,27 @@ public class Quiz extends AppCompatActivity {
 
                 quizQuestionsData = new QuizData(this);
                 quizQuestionsData.open();
-                List<QuizQuestion> fullQuestionsList = quizQuestionsData.retrieveAllQuizQuestions();
-                Log.d(DEBUG_TAG, "JobLeadDBReaderTask: Job leads retrieved: " + fullQuestionsList.size());
 
-                quizList = new ArrayList<>();
-                int size = 50;
-                ArrayList<Integer> list = new ArrayList<>(size);
-                for (int i = 0; i <= size; i++) {
-                    list.add(i);
-                }
+                new QuizDBReaderTask().execute();
 
-                Random rand = new Random();
-                for (int i = 0; i < 6; i++) {
-                    int index = rand.nextInt(list.size());
-                    if (index != 0) {
-                        quizList.add(fullQuestionsList.get(list.get(index)));
-                    } else
-                        i--;
-                    Log.d(DEBUG_TAG, "Random number selected: " + list.get(index));
-                    list.remove(index);
-                }
-                createQuiz(quizList);
+//                quizList = new ArrayList<>();
+//                int size = 50;
+//                ArrayList<Integer> list = new ArrayList<>(size);
+//                for (int i = 0; i <= size; i++) {
+//                    list.add(i);
+//                }
+//
+//                Random rand = new Random();
+//                for (int i = 0; i < 6; i++) {
+//                    int index = rand.nextInt(list.size());
+//                    if (index != 0) {
+//                        quizList.add(fullQuestionsList.get(list.get(index)));
+//                    } else
+//                        i--;
+//                    Log.d(DEBUG_TAG, "Random number selected: " + list.get(index));
+//                    list.remove(index);
+//                }
+//                createQuiz(quizList);
             }
             else {
                 quizQuestionsData.open();
@@ -243,6 +244,39 @@ public class Quiz extends AppCompatActivity {
             return quiz[0];
         }
     }
+
+    /**
+     * An AsyncTask to store new quizzes when the submit button is clicked
+     */
+    private class QuizDBReaderTask extends AsyncTask<Void, Void, List<QuizQuestion>> {
+
+        @Override
+        protected List<QuizQuestion> doInBackground( Void... params ) {
+            fullQuestionsList = quizQuestionsData.retrieveAllQuizQuestions();
+
+            quizList = new ArrayList<>();
+            int size = 50;
+            ArrayList<Integer> list = new ArrayList<>(size);
+            for (int i = 0; i <= size; i++) {
+                list.add(i);
+            }
+
+            Random rand = new Random();
+            for (int i = 0; i < 6; i++) {
+                int index = rand.nextInt(list.size());
+                if (index != 0) {
+                    quizList.add(fullQuestionsList.get(list.get(index)));
+                } else
+                    i--;
+                Log.d(DEBUG_TAG, "Random number selected: " + list.get(index));
+                list.remove(index);
+            }
+            createQuiz(quizList);
+
+            return fullQuestionsList;
+        }
+    }
+
 
     private QuizObject createQuiz(ArrayList<QuizQuestion> quizList) {
         currentQuiz.setQ1(quizList.get(0));
