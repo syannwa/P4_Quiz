@@ -13,6 +13,9 @@ import com.opencsv.CSVReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+/**
+ * The QuizDBHelper class is used to initialize the tables and import the data from the csv
+ */
 public class QuizDBHelper extends SQLiteOpenHelper {
     private static final String DEBUG_TAG = "QuizDBHelper";
 
@@ -34,6 +37,7 @@ public class QuizDBHelper extends SQLiteOpenHelper {
     private static QuizDBHelper helperInstance;
     private static Context myContext;
 
+    // SQL command to create the capitals table
     private static final String CREATE_CAPITALS =
             "create table " + TABLE_CAPITALS + " ("
                     + CAPITALS_COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
@@ -43,6 +47,7 @@ public class QuizDBHelper extends SQLiteOpenHelper {
                     + CAPITALS_COLUMN_CITY2 + " TEXT"
                     + ")";
 
+    // SQL command to create the  quizzes table
     private static final String CREATE_QUIIZZES =
             "create table " + TABLE_QUIZZES + " ("
                     + QUIZZES_COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
@@ -74,6 +79,9 @@ public class QuizDBHelper extends SQLiteOpenHelper {
         new QuizDBPopulateTask().execute( db );
     }
 
+    /**
+     * QuizDBPopulateTask is an AsyncTask that populates the initial database for the capitals table
+     */
     private class QuizDBPopulateTask extends AsyncTask<SQLiteDatabase, Void, SQLiteDatabase> {
 
         @Override
@@ -103,34 +111,33 @@ public class QuizDBHelper extends SQLiteOpenHelper {
         }
     }
 
-    public void populate(SQLiteDatabase db) {
-        try {
-            Resources res = myContext.getResources();
-            InputStream in_s = res.openRawResource( R.raw.states );
-
-            // read the CSV data
-            CSVReader reader = new CSVReader( new InputStreamReader( in_s ) );
-            String [] nextLine;
-            while( ( nextLine = reader.readNext() ) != null ) {
-                ContentValues values = new ContentValues();
-                values.put( QuizDBHelper.CAPITALS_COLUMN_STATE, nextLine[0]);
-                values.put( QuizDBHelper.CAPITALS_COLUMN_CAPITAL, nextLine[1] );
-                values.put( QuizDBHelper.CAPITALS_COLUMN_CITY1, nextLine[2] );
-                values.put( QuizDBHelper.CAPITALS_COLUMN_CITY2, nextLine[3] );
-
-                long id = db.insert(QuizDBHelper.TABLE_CAPITALS, null, values );
-
-                Log.d( DEBUG_TAG, "Line: " + nextLine );
-            }
-        } catch (Exception e) {
-            Log.e( DEBUG_TAG, e.toString() );
-        }
-    }
+//    public void populate(SQLiteDatabase db) {
+//        try {
+//            Resources res = myContext.getResources();
+//            InputStream in_s = res.openRawResource( R.raw.states );
+//
+//            // read the CSV data
+//            CSVReader reader = new CSVReader( new InputStreamReader( in_s ) );
+//            String [] nextLine;
+//            while( ( nextLine = reader.readNext() ) != null ) {
+//                ContentValues values = new ContentValues();
+//                values.put( QuizDBHelper.CAPITALS_COLUMN_STATE, nextLine[0]);
+//                values.put( QuizDBHelper.CAPITALS_COLUMN_CAPITAL, nextLine[1] );
+//                values.put( QuizDBHelper.CAPITALS_COLUMN_CITY1, nextLine[2] );
+//                values.put( QuizDBHelper.CAPITALS_COLUMN_CITY2, nextLine[3] );
+//
+//                long id = db.insert(QuizDBHelper.TABLE_CAPITALS, null, values );
+//
+//                Log.d( DEBUG_TAG, "Line: " + nextLine );
+//            }
+//        } catch (Exception e) {
+//            Log.e( DEBUG_TAG, e.toString() );
+//        }
+//    }
 
 
     // We should override onUpgrade method, which will be used to upgrade the database if
-    // its version (DB_VERSION) has changed.  This will be done automatically by Android
-    // if the version will be bumped up, as we modify the database schema.
+    // its version (DB_VERSION) has changed
     @Override
     public void onUpgrade( SQLiteDatabase db, int oldVersion, int newVersion ) {
         db.execSQL( "DROP TABLE IF EXISTS " + TABLE_CAPITALS);

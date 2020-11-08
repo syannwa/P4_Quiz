@@ -20,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import java.text.SimpleDateFormat;
@@ -29,6 +30,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * The main class for running the quiz activity
+ */
 public class Quiz extends AppCompatActivity {
 
     public static final String NUMBER_ANSWERED = "num answered";
@@ -54,13 +58,14 @@ public class Quiz extends AppCompatActivity {
     static String correctAnswer;
     public Boolean correct = false;
     public QuizObject currentQuiz = new QuizObject();
-    public Integer score;
     public Integer numAnswered;
-    public Boolean answered;
     public static final String DEBUG_TAG = "DEBUG_QuizQuestions";
 
     public static ArrayList<String> options;
 
+    /**
+     * onSaveInstanceState is used to save the variables when the app is stopped abruptly
+     */
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         //Need to save num questions answered, score, and quizlist
@@ -69,21 +74,22 @@ public class Quiz extends AppCompatActivity {
         outState.putParcelable(ADAPTER, parcelable);
         outState.putInt(NUMBER_ANSWERED, currentQuiz.getNumberAnswered());
         outState.putInt(SCORE, currentQuiz.getScore());
-        //outState.putBoolean(ANSWERED, answered);
         outState.putParcelableArrayList(QUIZ_LIST, (ArrayList<? extends Parcelable>) quizList);
 
     }
 
+    /**
+     * Creates the basic information for the quiz activity
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_pager);
 
-        //QuizDBHelper helper = QuizDBHelper.getInstance(getApplicationContext());
         QuizDBHelper helper = QuizDBHelper.getInstance(this);
 
         mActionBar = getSupportActionBar();
-        //mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), 6);
+        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), 6);
         mViewPager = (ViewPager) findViewById(R.id.pager);
 
         if (Quiz.class.isInstance(this)) {
@@ -93,6 +99,7 @@ public class Quiz extends AppCompatActivity {
 
             //If new quiz
             if(savedInstanceState == null) {
+                //mSectionsPagerAdapter = new SectionsPagerAdapter(getChildFragmentManager(), 6);
                 mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), 6);
                 mActionBar.setTitle(mSectionsPagerAdapter.getPageTitle(0));
                 mViewPager.setAdapter(mSectionsPagerAdapter);
@@ -125,9 +132,7 @@ public class Quiz extends AppCompatActivity {
                 currentQuiz.setNumberAnswered(savedInstanceState.getInt(NUMBER_ANSWERED));
                 numAnswered = savedInstanceState.getInt(NUMBER_ANSWERED);
                 mSectionsPagerAdapter = savedInstanceState.getParcelable(ADAPTER);
-
                 mViewPager.setAdapter(mSectionsPagerAdapter);
-                //mActionBar.setTitle(mSectionsPagerAdapter.getPageTitle(numAnswered));
             }
 
         }
@@ -176,8 +181,6 @@ public class Quiz extends AppCompatActivity {
             }
 
         });
-
-
     }
 
     /**
@@ -206,7 +209,6 @@ public class Quiz extends AppCompatActivity {
                 String strDate = formatter.format(date);
                 currentQuiz.setDate(strDate);
 
-                //quizQuestionsData.storeQuiz(currentQuiz);
                 new QuizDBWriterTask().execute( currentQuiz );
                 dateText.setText(strDate);
             }
@@ -225,6 +227,9 @@ public class Quiz extends AppCompatActivity {
         }
     }
 
+    /**
+     * An AsyncTask to store new quizzes when the submit button is clicked
+     */
     private class QuizDBWriterTask extends AsyncTask<QuizObject, Void, QuizObject> {
 
         @Override
@@ -280,6 +285,9 @@ public class Quiz extends AppCompatActivity {
         }
     }
 
+    /**
+     * The Fragment class that is laid over the ViewPager while the quiz is running
+     */
     public static class PlaceholderFragment extends Fragment {
         private static final String ARG_SECTION_NUMBER = "section_number";
         private String quest;
@@ -291,6 +299,7 @@ public class Quiz extends AppCompatActivity {
         private RadioButton option1;
         private RadioButton option2;
         private RadioButton option3;
+        View rootView;
 
         public static PlaceholderFragment newInstance(int sectionNumber) {
             PlaceholderFragment fragment = new PlaceholderFragment();
@@ -317,7 +326,18 @@ public class Quiz extends AppCompatActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.activity_quiz, container, false);
+            rootView = inflater.inflate(R.layout.activity_quiz, container, false);
+            initialize();
+            return rootView;
+        }
+
+        @Override
+        public void onResume() {
+            super.onResume();
+            initialize();
+        }
+
+        public void initialize() {
             submitButton = (Button) rootView.findViewById(R.id.button3);
             question = (TextView) rootView.findViewById(R.id.textView1);
             option1 = (RadioButton) rootView.findViewById(R.id.radioButton);
@@ -325,14 +345,13 @@ public class Quiz extends AppCompatActivity {
             option3 = (RadioButton) rootView.findViewById(R.id.radioButton3);
             radioGroup = rootView.findViewById(R.id.radioGroup);
 
+            Log.d(DEBUG_TAG, "onCreateView called");
             radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(RadioGroup group, int checkedId) {
                     rbSelected = rootView.findViewById(checkedId);
                 }
             });
-
-            return rootView;
         }
 
         @Override
@@ -358,6 +377,7 @@ public class Quiz extends AppCompatActivity {
             }
             else {
                 options = savedInstanceState.getStringArrayList(OPTIONS);
+
                 Log.d(DEBUG_TAG, "" + options);
             }
 
@@ -383,7 +403,4 @@ public class Quiz extends AppCompatActivity {
                 super.onDestroy();
             }
         }
-
-
-
     }

@@ -10,6 +10,7 @@ import androidx.viewpager.widget.ViewPager;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.util.DebugUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,18 +24,20 @@ import org.w3c.dom.Text;
 
 import java.io.InputStream;
 
+/**
+ * The Main Activity for the State Capitals Quiz. Used to start a new quiz
+ * or to view the past quizzes
+ */
 public class MainActivity extends AppCompatActivity {
 
     private Button continueButton;
+    private Button viewQuizzes;
     private TextView introduction;
     private ImageView img;
 
     @Override
     /**
-     * Creates and sets all variables to their corresponding views
-     * in the app. So the splash screen is properly created and when the
-     * continue button is clicked, it continues to the other main page
-     * that contains the list of countries to pick from.
+     * Creates the main menu splash screen for the app
      *
      * @param savedInstanceState the bundled saved state of the application
      */
@@ -45,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
 
         //grabs all the views and sets the variables
         continueButton = findViewById(R.id.button);
+        viewQuizzes = findViewById(R.id.button2);
         introduction = findViewById(R.id.textView2);
         img = findViewById(R.id.imageView4);
         continueButton.setOnClickListener(new ButtonClickListener());
@@ -88,6 +92,11 @@ public class MainActivity extends AppCompatActivity {
         {
             if(v == continueButton) {
                 Intent intent = new Intent(v.getContext(), Quiz.class);
+                startActivity(intent);
+            }
+            else if(v == viewQuizzes) {
+                Log.d("View Past", "view quizzes");
+                Intent intent = new Intent(v.getContext(), ReviewQuizzesActivity.class);
                 startActivity(intent);
             }
         }

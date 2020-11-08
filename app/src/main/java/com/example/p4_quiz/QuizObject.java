@@ -1,7 +1,8 @@
 package com.example.p4_quiz;
 
-import java.util.Date;
-
+/**
+ * The QuizObject class defines all the variables stored in a Quiz
+ */
 public class QuizObject {
     private long   id;
     private QuizQuestion q1;

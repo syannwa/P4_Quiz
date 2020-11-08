@@ -3,6 +3,9 @@ package com.example.p4_quiz;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+/**
+ * QuizQuestion defines a question in the Quiz
+ */
 public class QuizQuestion implements Parcelable {
     private long   id;
     private String state;
@@ -26,8 +29,6 @@ public class QuizQuestion implements Parcelable {
         this.capital = capital;
         this.city1 = city1;
         this.city2 = city2;
-
-
     }
 
     protected QuizQuestion(Parcel in) {

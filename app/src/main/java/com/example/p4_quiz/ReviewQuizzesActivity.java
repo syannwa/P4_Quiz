@@ -11,6 +11,10 @@ import android.util.Log;
 
 import java.util.List;
 
+/**
+ * The ReviewQuizzesActivity class uses the QuizRecyclerAdapter to show the previous
+ * quizzes stored in the app
+ */
 public class ReviewQuizzesActivity extends AppCompatActivity {
 
     public static final String DEBUG_TAG = "ReviewQuizzesActivity";
@@ -36,20 +40,14 @@ public class ReviewQuizzesActivity extends AppCompatActivity {
         layoutManager = new LinearLayoutManager(this );
         recyclerView.setLayoutManager( layoutManager );
 
-        // Create a JobLeadsData instance, since we will need to save a new JobLead to the dn.
-        // Note that even though more activites may create their own instances of the JobLeadsData
-        // class, we will be using a single instance of the JobLeadsDBHelper object, since
-        // that class is a singleton class.
         quizData = new QuizData( this );
 
-        // Execute the retrieval of the job leads in an asynchronous way,
-        // without blocking the UI thread.
-        new JobLeadDBReaderTask().execute();
+        new QuizzesDBReaderTask().execute();
 
     }
 
     // This is an AsyncTask class (it extends AsyncTask) to perform DB reading of job leads, asynchronously.
-    private class JobLeadDBReaderTask extends AsyncTask<Void, Void, List<QuizObject>> {
+    private class QuizzesDBReaderTask extends AsyncTask<Void, Void, List<QuizObject>> {
 
         // This method will run as a background process to read from db.
         // It returns a list of retrieved JobLead objects.
@@ -59,8 +57,6 @@ public class ReviewQuizzesActivity extends AppCompatActivity {
         protected List<QuizObject> doInBackground( Void... params ) {
             quizData.open();
             quizList = quizData.retrieveAllQuizzes();
-
-            Log.d( DEBUG_TAG, "JobLeadDBReaderTask: Job leads retrieved: " + quizList.size() );
 
             return quizList;
         }
@@ -79,7 +75,6 @@ public class ReviewQuizzesActivity extends AppCompatActivity {
 
     @Override
     protected void onResume() {
-        Log.d( DEBUG_TAG, "ReviewJobLeadsActivity.onResume()" );
         // open the database in onResume
         if( quizData != null )
             quizData.open();
@@ -88,7 +83,6 @@ public class ReviewQuizzesActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-        Log.d( DEBUG_TAG, "ReviewJobLeadsActivity.onPause()" );
         // close the database in onPause
         if( quizData != null )
             quizData.close();
@@ -98,25 +92,21 @@ public class ReviewQuizzesActivity extends AppCompatActivity {
     // These activity callback methods are not needed and are for edational purposes only
     @Override
     protected void onStart() {
-        Log.d( DEBUG_TAG, "ReviewJobLeadsActivity.onStart()" );
         super.onStart();
     }
 
     @Override
     protected void onStop() {
-        Log.d( DEBUG_TAG, "ReviewJobLeadsActivity.onStop()" );
         super.onStop();
     }
 
     @Override
     protected void onDestroy() {
-        Log.d( DEBUG_TAG, "ReviewJobLeadsActivity.onDestroy()" );
         super.onDestroy();
     }
 
     @Override
     protected void onRestart() {
-        Log.d( DEBUG_TAG, "ReviewJobLeadsActivity.onRestart()" );
         super.onRestart();
     }
 }
