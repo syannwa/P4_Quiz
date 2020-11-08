@@ -156,9 +156,11 @@ public class Quiz extends AppCompatActivity {
             public void gradeQuestion(int position) {
                 if(position != 5) {
                     //Sydney!!!
-                    Log.d(DEBUG_TAG, "RBSelected: " + rbSelected.getText());
+                    correctAnswer = (String) rbSelected.getText();
+                    correctAnswer = correctAnswer.substring(3);
+                    Log.d(DEBUG_TAG, "RBSelected: " + correctAnswer);
                     Log.d(DEBUG_TAG, "Correct Answer: " + quizList.get(position).getCapital());
-                    correct = quizList.get(position).gradeQuestion(String.valueOf(rbSelected.getText()));
+                    correct = quizList.get(position).gradeQuestion(String.valueOf(correctAnswer));
                     Log.d(DEBUG_TAG, "Correct?: " + correct);
                     if(correct) {
                         currentQuiz.incrementScore();
@@ -187,8 +189,9 @@ public class Quiz extends AppCompatActivity {
         public void onClick(View v)
         {
             if(v == submitButton) {
-
-                correct = quizList.get(5).gradeQuestion(String.valueOf(rbSelected.getText()));
+                correctAnswer = (String) rbSelected.getText();
+                correctAnswer = correctAnswer.substring(3);
+                correct = quizList.get(5).gradeQuestion(correctAnswer);
                 Log.d(DEBUG_TAG, "Correct?: " + correct);
                 if(correct) {
                     currentQuiz.incrementScore();
@@ -373,7 +376,6 @@ public class Quiz extends AppCompatActivity {
                 options.add(quizList.get(questionNum - 1).getCapital());
                 options.add(quizList.get(questionNum - 1).getCity1());
                 options.add(quizList.get(questionNum - 1).getCity2());
-                correctAnswer = quizList.get(questionNum - 1).getCapital();
 
                 Collections.shuffle(options);
             }
@@ -383,7 +385,6 @@ public class Quiz extends AppCompatActivity {
                 options.add(quizList.get(questionNum - 1).getCapital());
                 options.add(quizList.get(questionNum - 1).getCity1());
                 options.add(quizList.get(questionNum - 1).getCity2());
-                correctAnswer = quizList.get(questionNum - 1).getCapital();
 
                 Collections.shuffle(options);
 
