@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
         introduction = findViewById(R.id.textView2);
         img = findViewById(R.id.imageView4);
         continueButton.setOnClickListener(new ButtonClickListener());
+        viewQuizzes.setOnClickListener(new ButtonClickListener());
 
 
         //tries to open the resources for the main textView on the main activity.
@@ -96,6 +97,12 @@ public class MainActivity extends AppCompatActivity {
             }
             else if(v == viewQuizzes) {
                 Log.d("View Past", "view quizzes");
+                Intent intent = new Intent(v.getContext(), ReviewQuizzesActivity.class);
+                startActivity(intent);
+
+            }
+            else if(v == viewQuizzes)
+            {
                 Intent intent = new Intent(v.getContext(), ReviewQuizzesActivity.class);
                 startActivity(intent);
             }
