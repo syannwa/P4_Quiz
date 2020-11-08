@@ -38,8 +38,6 @@ public class Quiz extends AppCompatActivity {
     public static final String NUMBER_ANSWERED = "num answered";
     public static final String SCORE = "score";
     public static final String QUIZ_LIST = "quiz question list";
-    public static final String ANSWERED = "is answered";
-    public static final String ADAPTER = "adapter";
     public static final String OPTIONS = "options";
 
     SectionsPagerAdapter mSectionsPagerAdapter;
@@ -62,6 +60,7 @@ public class Quiz extends AppCompatActivity {
     public static final String DEBUG_TAG = "DEBUG_QuizQuestions";
 
     public static ArrayList<String> options;
+    public static ArrayList<String> currentOptions;
 
     /**
      * onSaveInstanceState is used to save the variables when the app is stopped abruptly
@@ -70,8 +69,8 @@ public class Quiz extends AppCompatActivity {
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         //Need to save num questions answered, score, and quizlist
         super.onSaveInstanceState(outState);
-        Parcelable parcelable = mSectionsPagerAdapter.saveState();
-        outState.putParcelable(ADAPTER, parcelable);
+        //Parcelable parcelable = mSectionsPagerAdapter.saveState();
+        //outState.putParcelable(ADAPTER, parcelable);
         outState.putInt(NUMBER_ANSWERED, currentQuiz.getNumberAnswered());
         outState.putInt(SCORE, currentQuiz.getScore());
         outState.putParcelableArrayList(QUIZ_LIST, (ArrayList<? extends Parcelable>) quizList);
@@ -92,18 +91,17 @@ public class Quiz extends AppCompatActivity {
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), 6);
         mViewPager = (ViewPager) findViewById(R.id.pager);
 
+        mViewPager.setAdapter(mSectionsPagerAdapter);
+
         if (Quiz.class.isInstance(this)) {
+            //mSectionsPagerAdapter = new SectionsPagerAdapter(getChildFragmentManager(), 6);
 
-            quizQuestionsData = new QuizData(this);
-            quizQuestionsData.open();
-
-            //If new quiz
             if(savedInstanceState == null) {
-                //mSectionsPagerAdapter = new SectionsPagerAdapter(getChildFragmentManager(), 6);
-                mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), 6);
-                mActionBar.setTitle(mSectionsPagerAdapter.getPageTitle(0));
-                mViewPager.setAdapter(mSectionsPagerAdapter);
 
+                mActionBar.setTitle(mSectionsPagerAdapter.getPageTitle(0));
+
+                quizQuestionsData = new QuizData(this);
+                quizQuestionsData.open();
                 List<QuizQuestion> fullQuestionsList = quizQuestionsData.retrieveAllQuizQuestions();
                 Log.d(DEBUG_TAG, "JobLeadDBReaderTask: Job leads retrieved: " + fullQuestionsList.size());
 
@@ -127,12 +125,12 @@ public class Quiz extends AppCompatActivity {
                 createQuiz(quizList);
             }
             else {
+                quizQuestionsData.open();
                 quizList = savedInstanceState.<QuizQuestion>getParcelableArrayList(QUIZ_LIST);
                 currentQuiz.setScore(savedInstanceState.getInt(SCORE));
                 currentQuiz.setNumberAnswered(savedInstanceState.getInt(NUMBER_ANSWERED));
                 numAnswered = savedInstanceState.getInt(NUMBER_ANSWERED);
-                mSectionsPagerAdapter = savedInstanceState.getParcelable(ADAPTER);
-                mViewPager.setAdapter(mSectionsPagerAdapter);
+                mActionBar.setTitle(mSectionsPagerAdapter.getPageTitle(numAnswered-1));
             }
 
         }
@@ -192,6 +190,13 @@ public class Quiz extends AppCompatActivity {
         public void onClick(View v)
         {
             if(v == submitButton) {
+
+                correct = quizList.get(5).gradeQuestion(String.valueOf(rbSelected.getText()));
+                Log.d(DEBUG_TAG, "Correct?: " + correct);
+                if(correct) {
+                    currentQuiz.incrementScore();
+                }
+
                 setContentView(R.layout.activity_result);
                 newQuiz = (Button) findViewById(R.id.button);
                 viewPastResults = (Button) findViewById(R.id.button2);
@@ -393,7 +398,13 @@ public class Quiz extends AppCompatActivity {
         @Override
         public void onSaveInstanceState(@NonNull Bundle outState) {
             super.onSaveInstanceState(outState);
-            outState.putStringArrayList(OPTIONS, options);
+            outState.putStringArrayList(OPTIONS, currentOptions);
+        }
+
+        @Override
+        public void onPause() {
+            super.onPause();
+            currentOptions = options;
         }
 
         @Override
