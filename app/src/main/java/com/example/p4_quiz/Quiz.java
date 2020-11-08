@@ -60,7 +60,7 @@ public class Quiz extends AppCompatActivity {
     public static final String DEBUG_TAG = "DEBUG_QuizQuestions";
 
     public static ArrayList<String> options;
-    public static ArrayList<String> currentOptions;
+    public static ArrayList<String> currentOptions = new ArrayList<>();
 
     /**
      * onSaveInstanceState is used to save the variables when the app is stopped abruptly
@@ -130,7 +130,7 @@ public class Quiz extends AppCompatActivity {
                 currentQuiz.setScore(savedInstanceState.getInt(SCORE));
                 currentQuiz.setNumberAnswered(savedInstanceState.getInt(NUMBER_ANSWERED));
                 numAnswered = savedInstanceState.getInt(NUMBER_ANSWERED);
-                mActionBar.setTitle(mSectionsPagerAdapter.getPageTitle(numAnswered-1));
+                mActionBar.setTitle(mSectionsPagerAdapter.getPageTitle(numAnswered));
             }
 
         }
@@ -379,11 +379,19 @@ public class Quiz extends AppCompatActivity {
                 correctAnswer = quizList.get(questionNum - 1).getCapital();
 
                 Collections.shuffle(options);
+                //currentOptions = options;
             }
             else {
-                options = savedInstanceState.getStringArrayList(OPTIONS);
+                options = new ArrayList<String>();
 
-                Log.d(DEBUG_TAG, "" + options);
+                options.add(quizList.get(questionNum - 1).getCapital());
+                options.add(quizList.get(questionNum - 1).getCity1());
+                options.add(quizList.get(questionNum - 1).getCity2());
+                correctAnswer = quizList.get(questionNum - 1).getCapital();
+
+                Collections.shuffle(options);
+
+                Log.d(DEBUG_TAG, "Options: " + options);
             }
 
             quest = "What is the capital of " + quizList.get(questionNum - 1).getState();
@@ -398,7 +406,7 @@ public class Quiz extends AppCompatActivity {
         @Override
         public void onSaveInstanceState(@NonNull Bundle outState) {
             super.onSaveInstanceState(outState);
-            outState.putStringArrayList(OPTIONS, currentOptions);
+            //outState.putStringArrayList(OPTIONS, currentOptions);
         }
 
         @Override
